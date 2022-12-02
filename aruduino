@@ -1,0 +1,77 @@
+#include<SoftwareSerial.h>
+// Declare a char array with one index for every possible ASCII byte / character
+SoftwareSerial BTSerial(2,3);
+byte myBrailleDots[255];
+int firstOutputPin = 2; // pin corresponding to least significant bit
+int buzzerPin = 8; // Buzzer on pin 8
+byte matrixPoints = 0; // byte that will store the point matrix configuration
+                       // for a specific ASCII character
+byte inByte;
+byte mask = 1; //our bitmask
+
+void setup() {
+  // Temporarily assign 99 to every possible ASCII byte/character
+  // All the characters in the input string will decode to "99" by default
+  for (int i = 0; i < 256; i = i + 1) {
+     myBrailleDots[i] = 99;
+  }
+
+  // Now, only for the ASCII characters with a corresponding Braille character.
+  // assign the corresponding Braille Dot configuration
+  for (int j = 0; j < 64; j = j + 1) {
+    myBrailleDots[j] = j;
+  }
+
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  BTSerial.begin(9600); 
+ 
+}
+
+void loop() {
+   // Braille print data only when you receive data:
+   if (BTSerial.available() > 0) {
+      // read the incoming byte:
+      inByte = BTSerial.read();
+      // say what you got:
+      Serial.print("Received (inByte): ");
+      Serial.println(inByte);
+      // Translate inByte in matrix points
+      Serial.print("Matrix points variable (myBrailleDots[inByte]): ");
+      Serial.println(myBrailleDots[inByte]);
+
+      // Braille print only admissible characters
+      // the unadmissible ones decode to 99
+      if (myBrailleDots[inByte] == 99)   // if unadmissible
+      {
+         Serial.println("Not a translatable character");
+         digitalWrite(buzzerPin,HIGH); // buzz
+         delay(250); 
+         digitalWrite(buzzerPin,LOW); // stop buzzing
+      }
+      else{ 
+              int thisPin = 2;
+              for (mask = 000001; mask<64; mask <<= 1) { 
+                  Serial.print("thisPin = ");
+                  Serial.println(thisPin); 
+                  if (myBrailleDots[inByte] & mask){ // if bitwise AND resolves to true
+                     Serial.print("AND successful, put pin on!");
+                     Serial.println(mask);  
+                     digitalWrite(thisPin,HIGH);               
+                  }
+                  else{ //if bitwise and resolves to false
+                     Serial.print("AND unsuccessful, put pin off!");
+                     Serial.println(mask);  
+                     digitalWrite(thisPin,LOW);
+                  }
+              thisPin = thisPin + 1;   
+              }
+      } 
+      delay(3000); // allow 3 sec before passing to next character
+   }
+}
