@@ -2,7 +2,7 @@ import hbcvt
 import serial
 import time
 
-a = '칠성사이다'
+c = '칠성사이다'
 PORT = 'COM6'
 BaudRate = 9600
 ARD = serial.Serial(PORT, BaudRate)
