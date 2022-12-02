@@ -3,7 +3,7 @@ import serial
 import time
 
 c = '칠성사이다'
-PORT = 'COM6'
+PORT = 'COM7'
 BaudRate = 9600
 ARD = serial.Serial(PORT, BaudRate)
 zero = '000000'
@@ -14,14 +14,13 @@ time.sleep(2)
 
 d = hbcvt.h2b.text(c)
 for n in range(len(d)):
-print('ok')
-for j in range(len(d[n][1])):
-  for k in range(len(d[n][1][j][1])):
-    e = d[n][1][j][1][k]
-    result = ''.join(map(str, e))
-    ac = chr(int(result, 2))
-    sending = ac.encode('ascii')
-    print(sending)
-    ARD.write(sending)
-    print('next')
-
+    print('ok')
+    for j in range(len(d[n][1])):
+        for k in range(len(d[n][1][j][1])):
+            e = d[n][1][j][1][k]
+            result = ''.join(map(str, e))
+            ac = chr(int(result, 2))
+            sending = ac.encode('ascii')
+            print(sending)
+            ARD.write(sending)
+            print('next')
